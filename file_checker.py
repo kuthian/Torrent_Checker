@@ -7,8 +7,12 @@ import time
 
 
 def main():
-    qb = Client('http://127.0.0.1:8080/')
-    qb.login()
+    done = False
+    try:
+        qb = Client('http://127.0.0.1:8080/')
+        qb.login()
+    except:
+        print("Error with qb client")
 
     paths = dict([(f, None) for f in os.listdir(".")])
 
@@ -32,7 +36,8 @@ def main():
 
     original_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
 
-    while 1:
+    print("--TorrentChecker--")
+    while not done:
         time.sleep(15)
         current_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
         new_files_in_path = [f for f in current_files_in_path if f not in original_files_in_path]
@@ -51,8 +56,10 @@ def main():
 
                         os.remove(f)
                 except ValueError:
+                    done = 1
                     print("Error reading magnet link.")
                 except:
+                    done = 1
                     print("Unexpected error")
 
         if removed_files_in_path:
@@ -65,7 +72,9 @@ def main():
             open(torrent['name'] + " - Completed.txt", "w+")
 
         original_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
+    input("Press any button to exit")
 
 
 if __name__ == "__main__":
     main()
+
