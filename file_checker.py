@@ -38,40 +38,44 @@ def main():
 
     print("--TorrentChecker--")
     while not done:
-        time.sleep(15)
-        current_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
-        new_files_in_path = [f for f in current_files_in_path if f not in original_files_in_path]
-        removed_files_in_path = [f for f in original_files_in_path if f not in current_files_in_path]
-        if new_files_in_path:
-            print("Added: ", ", ".join(new_files_in_path))
-            for f in new_files_in_path:
-                try:
-                    file_with_magnet_link = open(f)
-                    qb.download_from_link(file_with_magnet_link.read(), savepath=download_save_path)
-                    file_with_magnet_link.close()
-                    torrents = qb.torrents(filter='downloading')
-                    for torrent in torrents:
-                        print("Downloading: " + torrent['name'])
-                        open(torrent['name'] + " - Downloading.txt", "w+")
+        try:
+            time.sleep(15)
+            current_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
+            new_files_in_path = [f for f in current_files_in_path if f not in original_files_in_path]
+            removed_files_in_path = [f for f in original_files_in_path if f not in current_files_in_path]
+            if new_files_in_path:
+                print("Added: ", ", ".join(new_files_in_path))
+                for f in new_files_in_path:
+                    try:
+                        file_with_magnet_link = open(f)
+                        qb.download_from_link(file_with_magnet_link.read()) # savepath=download_save_path)
+                        file_with_magnet_link.close()
+                        torrents = qb.torrents(filter='downloading')
+                        for torrent in torrents:
+                            print("Downloading: " + torrent['name'])
+                            open(torrent['name'] + " - Downloading.txt", "w+")
 
-                        os.remove(f)
-                except ValueError:
-                    done = 1
-                    print("Error reading magnet link.")
-                except:
-                    done = 1
-                    print("Unexpected error")
+                            os.remove(f)
+                    except ValueError:
+                        done = True
+                        print("Error reading magnet link.")
+                    except:
+                        done = True
+                        print("Unexpected error")
 
-        if removed_files_in_path:
-            print("Removed: ", ", ".join(removed_files_in_path))
+            if removed_files_in_path:
+                print("Removed: ", ", ".join(removed_files_in_path))
 
-        torrents = qb.torrents(filter='seeding')
-        for torrent in torrents:
-            print("Completed: " + torrent['name'])
-            qb.pause(torrent['hash'])
-            open(torrent['name'] + " - Completed.txt", "w+")
+            torrents = qb.torrents(filter='seeding')
+            for torrent in torrents:
+                print("Completed: " + torrent['name'])
+                qb.pause(torrent['hash'])
+                open(torrent['name'] + " - Completed.txt", "w+")
 
-        original_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
+            original_files_in_path = dict([(f, None) for f in os.listdir(watch_path)])
+        except:
+            done = True
+            print("Unexpected error")
     input("Press any button to exit")
 
 
